@@ -2,12 +2,10 @@ class Loan < ApplicationRecord
   attr_accessor :origination_date_raw, :payment_date_raw, :is_interest_only_raw
 
   validates :loan_number, presence: true, length: { in: 2..50 }
-  validates :origination_date, presence: true
-  validates :payment_date, presence: true
-  validates :amortization_period, numericality: { greater_than_or_equal_to: 0 }, presence: true
+  validates :amortization_period, numericality: { greater_than_or_equal_to: 0 }
   validates :unpaid_principal_balance, numericality: { greater_than_or_equal_to: 0 }, presence: true
   validates :interest_rate, numericality: { greater_than_or_equal_to: 0 }, presence: true
-  validates :net_operating_income, numericality: { greater_than: 0 }, presence: true
+  validates :net_operating_income, numericality: { greater_than: 0 }
   validates :is_interest_only, inclusion: { in: [true, false] }
 
   validate :validate_date_formats
@@ -24,20 +22,48 @@ class Loan < ApplicationRecord
   def assign_from_csv_row(row)
     self.loan_number = row["loan_number"]&.strip
     self.origination_date_raw = row["origination_date"]
-    self.origination_date = self.class.parse_date(origination_date_raw)
+    self.origination_date = self.parse_date(origination_date_raw)
     self.amortization_period = row["amortization_period"].presence&.to_i
     self.payment_date_raw = row["payment_date"]
-    self.payment_date = self.class.parse_date(payment_date_raw)
+    self.payment_date = self.parse_date(payment_date_raw)
     self.unpaid_principal_balance = row["unpaid_principal_balance"].presence&.to_d
     self.interest_rate = row["interest_rate"].presence&.to_d
     self.net_operating_income = row["net_operating_income"].presence&.to_d
     self.is_interest_only_raw = row["is_interest_only"]
-    self.is_interest_only = self.class.parse_boolean(is_interest_only_raw)
+    self.is_interest_only = self.parse_boolean(is_interest_only_raw)
+  end
+
+  def debt_service_coverage_ratio
+    net_operating_income / annual_debt_service
+  end
+
+  def annual_debt_service
+    payment_amount * 12
+  end
+
+  def payment_amount
+    (periodic_interest_rate * unpaid_principal_balance) / (1 - (1 + periodic_interest_rate) ** -number_of_periods.to_f)
+  end
+
+  def periodic_interest_rate
+    interest_rate / 12
+  end
+
+  def number_of_periods
+    months_between(payment_date, amortization_end_date)
+  end
+
+  def amortization_end_date
+    origination_date + amortization_period.months
+  end
+
+  def months_between(date1, date2)
+    (date2.year * 12 + date2.month) - (date1.year * 12 + date1.month)
   end
 
   private
 
-  def self.parse_date(value)
+  def parse_date(value)
     return if value.blank?
 
     Date.strptime(value, "%m/%d/%Y")
@@ -45,7 +71,7 @@ class Loan < ApplicationRecord
     nil
   end
 
-  def self.parse_boolean(value)
+  def parse_boolean(value)
     return if value.nil?
 
     normalized = value.to_s.strip.downcase
