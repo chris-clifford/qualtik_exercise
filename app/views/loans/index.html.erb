@@ -11,7 +11,7 @@
     <div class="upload-panel">
       <%= form_with url: import_loans_path, multipart: true, class: "upload-form", local: true do |form| %>
         <div class="upload-form__field">
-          <%= form.label :file, "CSV file", class: "label" %>
+          <%= form.label :file, "Upload Loan Data CSV File", class: "label" %>
           <div class="file-input">
             <%= form.file_field :file, accept: ".csv", required: true %>
             <span class="hint">Expected headers: loan_number, origination_date, amortization_period, payment_date, unpaid_principal_balance, interest_rate, net_operating_income, is_interest_only</span>
@@ -53,9 +53,9 @@
             <% @loans.each do |loan| %>
               <tr>
                 <td><%= loan.loan_number %></td>
-                <td><%= loan.origination_date&.strftime("%m/%d/%Y") %></td>
-                <td><%= loan.amortization_period %></td>
-                <td><%= loan.payment_date&.strftime("%m/%d/%Y") %></td>
+                <td><%= loan.origination_date.present? ? loan.origination_date.strftime("%m/%d/%Y") : "-" %></td>
+                <td><%= loan.amortization_period.present? ? loan.amortization_period : "-" %></td>
+                <td><%= loan.payment_date.present? ? loan.payment_date.strftime("%m/%d/%Y") : "-" %></td>
                 <td><%= number_to_currency(loan.unpaid_principal_balance) %></td>
                 <td><%= loan.interest_rate.present? ? number_to_percentage(loan.interest_rate * 100, precision: 3) : "—" %></td>
                 <td><%= loan.net_operating_income.present? ? number_to_currency(loan.net_operating_income) : "—" %></td>

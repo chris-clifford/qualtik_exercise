@@ -4,11 +4,11 @@ class Loan < ApplicationRecord
   before_save :assign_dscr
 
   validates :loan_number, presence: true, length: { in: 2..50 }, uniqueness: true
-  validates :amortization_period, numericality: { greater_than_or_equal_to: 0 }
+  validates :amortization_period, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :unpaid_principal_balance, numericality: { greater_than_or_equal_to: 0 }, presence: true
   validates :interest_rate, numericality: { greater_than_or_equal_to: 0 }, presence: true
   validates :net_operating_income, numericality: { greater_than: 0 }, allow_nil: true
-  validates :is_interest_only, inclusion: { in: [true, false] }
+  validates :is_interest_only, inclusion: { in: [true, false] }, allow_nil: true
 
   validate :validate_date_formats
   validate :validate_payment_not_before_origination
