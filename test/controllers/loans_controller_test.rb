@@ -1,6 +1,8 @@
 require "test_helper"
 
 class LoansControllerTest < ActionDispatch::IntegrationTest
+  include ActionView::Helpers::NumberHelper
+
   test "index shows loans" do
     loan = loans(:one)
 
@@ -9,6 +11,7 @@ class LoansControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes @response.body, "Loans"
     assert_includes @response.body, loan.loan_number
+    assert_includes @response.body, number_with_precision(loan.dscr, precision: 3)
   end
 
   test "import creates loans from csv" do

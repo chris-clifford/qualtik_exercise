@@ -8,6 +8,7 @@ one:
   unpaid_principal_balance: 9.99
   interest_rate: 9.99
   net_operating_income: 9.99
+  dscr: 1.2345
   is_interest_only: false
 
 two:

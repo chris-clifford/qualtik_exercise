@@ -44,6 +44,7 @@
             <th>Unpaid Principal Balance</th>
             <th>Interest Rate</th>
             <th>Net Operating Income</th>
+            <th>DSCR</th>
             <th>Interest Only?</th>
           </tr>
         </thead>
@@ -58,12 +59,13 @@
                 <td><%= number_to_currency(loan.unpaid_principal_balance) %></td>
                 <td><%= loan.interest_rate.present? ? number_to_percentage(loan.interest_rate * 100, precision: 3) : "—" %></td>
                 <td><%= loan.net_operating_income.present? ? number_to_currency(loan.net_operating_income) : "—" %></td>
+                <td><%= loan.dscr.present? ? number_with_precision(loan.dscr, precision: 3) : "—" %></td>
                 <td><%= loan.is_interest_only ? "Yes" : "No" %></td>
               </tr>
             <% end %>
           <% else %>
             <tr>
-              <td colspan="8" class="empty">No loans yet. Upload a CSV to get started.</td>
+              <td colspan="9" class="empty">No loans yet. Upload a CSV to get started.</td>
             </tr>
           <% end %>
         </tbody>
