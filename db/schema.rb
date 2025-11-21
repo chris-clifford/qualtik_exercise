@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_21_023407) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_21_023408) do
   create_table "loans", force: :cascade do |t|
     t.string "loan_number", null: false
     t.date "origination_date"
@@ -23,5 +23,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_21_023407) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "dscr", precision: 10, scale: 4
+    t.index ["loan_number"], name: "index_loans_on_loan_number", unique: true
   end
 end

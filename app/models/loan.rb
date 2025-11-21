@@ -3,7 +3,7 @@ class Loan < ApplicationRecord
 
   before_save :assign_dscr
 
-  validates :loan_number, presence: true, length: { in: 2..50 }
+  validates :loan_number, presence: true, length: { in: 2..50 }, uniqueness: true
   validates :amortization_period, numericality: { greater_than_or_equal_to: 0 }
   validates :unpaid_principal_balance, numericality: { greater_than_or_equal_to: 0 }, presence: true
   validates :interest_rate, numericality: { greater_than_or_equal_to: 0 }, presence: true
