@@ -29,23 +29,23 @@ class LoansControllerTest < ActionDispatch::IntegrationTest
     assert Loan.exists?(loan_number: "LOAN-004")
   end
 
-  test "import continues when rows are invalid and reports all failures" do
+  test "import rolls back when any row is invalid and reports all failures" do
     file = fixture_file_upload("loans_with_invalid.csv", "text/csv")
 
-    assert_difference("Loan.count", 2) do
+    assert_no_difference("Loan.count") do
       post import_loans_url, params: { file: file }
     end
 
     assert_redirected_to loans_url
     follow_redirect!
 
-    assert_equal "Imported 2 loans.", flash[:notice]
-    assert Loan.exists?(loan_number: "LOAN-005")
-    assert Loan.exists?(loan_number: "LOAN-007")
-    refute Loan.exists?(loan_number: "LOAN-006")
-
+    assert_nil flash[:notice]
     assert_includes flash[:alert], "1 row"
+    assert_includes flash[:alert], "Import canceled"
     assert_includes flash[:alert], "LOAN-006"
     assert_match(/Interest rate/i, flash[:alert])
+    refute Loan.exists?(loan_number: "LOAN-005")
+    refute Loan.exists?(loan_number: "LOAN-006")
+    refute Loan.exists?(loan_number: "LOAN-007")
   end
 end
