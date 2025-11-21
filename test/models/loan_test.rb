@@ -76,6 +76,16 @@ class LoanTest < ActiveSupport::TestCase
     assert_nil loan.dscr
   end
 
+  test "requires unique loan_number" do
+    existing = loans(:one)
+
+    error = assert_raises(ActiveRecord::RecordInvalid) do
+      Loan.create_from_csv_row!(csv_row(loan_number: existing.loan_number))
+    end
+
+    assert_match(/Loan number has already been taken/i, error.message)
+  end
+
   private
 
   def csv_row(overrides = {})
