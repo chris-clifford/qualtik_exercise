@@ -50,6 +50,32 @@ class LoanTest < ActiveSupport::TestCase
     assert_match(/Net operating income must be greater than 0/i, error.message)
   end
 
+  test "persists dscr on save" do
+    loan = Loan.create_from_csv_row!(csv_row)
+
+    loan.reload
+
+    assert_in_delta loan.debt_service_coverage_ratio, loan.dscr, 0.0001
+  end
+
+  test "allows missing net operating income and leaves dscr nil" do
+    loan = Loan.create_from_csv_row!(csv_row(net_operating_income: nil))
+
+    assert_nil loan.dscr
+  end
+
+  test "handles non-positive number of periods when calculating dscr" do
+    loan = Loan.create_from_csv_row!(
+      csv_row(
+        amortization_period: "0",
+        origination_date: "01/15/2020",
+        payment_date: "01/15/2020"
+      )
+    )
+
+    assert_nil loan.dscr
+  end
+
   private
 
   def csv_row(overrides = {})

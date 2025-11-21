@@ -1,11 +1,13 @@
 class Loan < ApplicationRecord
   attr_accessor :origination_date_raw, :payment_date_raw, :is_interest_only_raw
 
+  before_save :assign_dscr
+
   validates :loan_number, presence: true, length: { in: 2..50 }
   validates :amortization_period, numericality: { greater_than_or_equal_to: 0 }
   validates :unpaid_principal_balance, numericality: { greater_than_or_equal_to: 0 }, presence: true
   validates :interest_rate, numericality: { greater_than_or_equal_to: 0 }, presence: true
-  validates :net_operating_income, numericality: { greater_than: 0 }
+  validates :net_operating_income, numericality: { greater_than: 0 }, allow_nil: true
   validates :is_interest_only, inclusion: { in: [true, false] }
 
   validate :validate_date_formats
@@ -34,26 +36,52 @@ class Loan < ApplicationRecord
   end
 
   def debt_service_coverage_ratio
-    net_operating_income / annual_debt_service
+    return if net_operating_income.blank?
+
+    debt_service = annual_debt_service
+    return if debt_service.nil? || debt_service <= 0
+
+    net_operating_income / debt_service
   end
 
   def annual_debt_service
-    payment_amount * 12
+    payment = payment_amount
+    return if payment.nil? || payment <= 0
+
+    payment * 12
   end
 
   def payment_amount
-    (periodic_interest_rate * unpaid_principal_balance) / (1 - (1 + periodic_interest_rate) ** -number_of_periods.to_f)
+    periods = number_of_periods
+    return if periods.nil? || periods <= 0
+
+    rate = periodic_interest_rate
+    principal = unpaid_principal_balance
+    return if rate.nil? || principal.nil?
+
+    return principal / periods if rate.zero?
+
+    denominator = 1 - (1 + rate) ** -periods.to_f
+    return if denominator.zero?
+
+    (rate * principal) / denominator
   end
 
   def periodic_interest_rate
+    return if interest_rate.nil?
+
     interest_rate / 12
   end
 
   def number_of_periods
+    return if payment_date.blank? || amortization_end_date.blank?
+
     months_between(payment_date, amortization_end_date)
   end
 
   def amortization_end_date
+    return if origination_date.blank? || amortization_period.blank?
+
     origination_date + amortization_period.months
   end
 
@@ -103,5 +131,9 @@ class Loan < ApplicationRecord
     if is_interest_only_raw.present? && is_interest_only.nil?
       errors.add(:is_interest_only, "must be \"true\" or \"false\"")
     end
+  end
+
+  def assign_dscr
+    self.dscr = debt_service_coverage_ratio
   end
 end
