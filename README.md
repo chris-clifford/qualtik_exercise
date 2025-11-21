@@ -1,24 +1,29 @@
-# README
+# Qualtik Exercise
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Quick steps to get the Rails app running locally.
 
-Things you may want to cover:
+## Prerequisites
+- Ruby 3.4.4 and Bundler
+- SQLite (already bundled with macOS; install if missing on Linux)
 
-* Ruby version
+## Clone the repo
+```bash
+git clone https://github.com/chris-clifford/qualtik_exercise.git
+cd qualtik_exercise
+```
 
-* System dependencies
+## Setup
+```bash
+bundle install
+```
 
-* Configuration
+## Run the app
+```bash
+bin/rails server
+```
+Visit http://localhost:3000.
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Run tests
+```bash
+bin/rails test
+```
