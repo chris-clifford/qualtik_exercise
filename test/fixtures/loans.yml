@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  loan_number: MyString
+  origination_date: 2025-11-20
+  amortization_period: 1
+  payment_date: 2025-11-20
+  unpaid_principal_balance: 9.99
+  interest_rate: 9.99
+  net_operating_income: 9.99
+  is_interest_only: false
+
+two:
+  loan_number: MyString
+  origination_date: 2025-11-20
+  amortization_period: 1
+  payment_date: 2025-11-20
+  unpaid_principal_balance: 9.99
+  interest_rate: 9.99
+  net_operating_income: 9.99
+  is_interest_only: false
