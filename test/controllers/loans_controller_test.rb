@@ -25,7 +25,7 @@ class LoansControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_equal "Imported 2 loans.", flash[:notice]
-    assert Loan.exists?(loan_number: "LOAN-001")
-    assert Loan.exists?(loan_number: "LOAN-002")
+    assert Loan.exists?(loan_number: "LOAN-003")
+    assert Loan.exists?(loan_number: "LOAN-004")
   end
 end
